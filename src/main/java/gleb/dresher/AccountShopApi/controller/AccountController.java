@@ -9,6 +9,7 @@ import gleb.dresher.AccountShopApi.repository.SellerRepository;
 import gleb.dresher.AccountShopApi.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -25,7 +26,7 @@ public class AccountController {
     }
 
     @GetMapping("/accountsfindbyid/{id}")
-    public Account getAccountById(@PathVariable("id") int id) {
+    public ResponseEntity<Account> getAccountById(@PathVariable("id") int id) {
         return accountService.getAccountById(id);
     }
 

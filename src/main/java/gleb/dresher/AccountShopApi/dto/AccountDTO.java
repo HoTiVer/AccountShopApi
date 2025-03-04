@@ -12,4 +12,11 @@ public class AccountDTO {
     private AccountType accountType;
 
     private int sellerId;
+
+    public AccountDTO(String name, double price, AccountType accountType, int sellerId) {
+        this.name = name;
+        this.price = price;
+        this.accountType = accountType;
+        this.sellerId = sellerId;
+    }
 }

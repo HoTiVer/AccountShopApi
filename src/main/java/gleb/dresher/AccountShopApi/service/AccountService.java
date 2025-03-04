@@ -9,6 +9,7 @@ import gleb.dresher.AccountShopApi.repository.SellerRepository;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -25,8 +26,12 @@ public class AccountService {
         return accountRepository.findAll();
     }
 
-    public Account getAccountById(int id) {
-        return accountRepository.customIdSearch(id);
+    public ResponseEntity<Account> getAccountById(int id) {
+        Account account = accountRepository.customIdSearch(id);
+        if (account != null){
+            return ResponseEntity.ok(account);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     public List<Account> getExpensiveAccounts(double price) {
