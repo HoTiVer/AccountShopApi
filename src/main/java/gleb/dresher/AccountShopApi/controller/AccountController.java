@@ -7,7 +7,6 @@ import gleb.dresher.AccountShopApi.enums.AccountType;
 import gleb.dresher.AccountShopApi.repository.AccountRepository;
 import gleb.dresher.AccountShopApi.repository.SellerRepository;
 import gleb.dresher.AccountShopApi.service.AccountService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +15,12 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @RestController
-@RequiredArgsConstructor
 public class AccountController {
     private final AccountService accountService;
+
+    public AccountController(AccountService accountService) {
+        this.accountService = accountService;
+    }
 
     @GetMapping("/accounts")
     public List<Account> getAccounts() {
@@ -52,17 +54,17 @@ public class AccountController {
     }
 
     @PostMapping("/accounts")
-    public Account addAccount(@RequestBody AccountDTO accountDTO) {
+    public ResponseEntity<Account> addAccount(@RequestBody AccountDTO accountDTO) {
         return accountService.addAccount(accountDTO);
     }
 
     @DeleteMapping("/accounts/{id}")
-    public String deleteAccount(@PathVariable("id") int id) {
+    public ResponseEntity<Void> deleteAccount(@PathVariable("id") int id) {
         return accountService.deleteAccount(id);
     }
 
     @PutMapping("/accounts/{id}")
-    public String updateAccount(@PathVariable("id") int id, @RequestBody AccountDTO accountDTO) {
+    public ResponseEntity<Account> updateAccount(@PathVariable("id") int id, @RequestBody AccountDTO accountDTO) {
         return accountService.updateAccount(id, accountDTO);
     }
 }

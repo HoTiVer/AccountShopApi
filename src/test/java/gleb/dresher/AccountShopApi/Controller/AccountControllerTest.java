@@ -8,6 +8,7 @@ import gleb.dresher.AccountShopApi.enums.AccountType;
 import gleb.dresher.AccountShopApi.repository.AccountRepository;
 import gleb.dresher.AccountShopApi.service.AccountService;
 import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +25,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 
@@ -142,14 +145,14 @@ public class AccountControllerTest {
         AccountDTO accountDTO = new AccountDTO(
                 "Dota 2 account TEST", 52.0, AccountType.DOTA, 1);
 
-        given(accountService.addAccount(Mockito.any(AccountDTO.class)))
-                .willAnswer(invocation -> account1);
+        given(accountService.addAccount(any(AccountDTO.class)))
+                .willAnswer(invocation -> ResponseEntity.created(null).body(account1));
 
         ResultActions response = mockMvc.perform(post("/accounts")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(accountDTO)));
 
-        response.andExpect(MockMvcResultMatchers.status().isOk())
+        response.andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(MockMvcResultMatchers
                         .jsonPath("$.name").value("Dota 2 account TEST"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.price").value(52.0));
@@ -157,28 +160,32 @@ public class AccountControllerTest {
 
     @Test
     public void AccountController_UpdateAccount_ReturnAccount() throws Exception {
+        AccountDTO accountDTO = new AccountDTO("Dota 2 account TEST", 52.0, AccountType.DOTA, 1);
 
-        when(accountService.updateAccount(1, account1))
-    }
+        when(accountService.updateAccount(eq(1), any(AccountDTO.class)))
+                .thenReturn(ResponseEntity.ok(account1)); // Мокаем метод сервиса
+
+        ResultActions response = mockMvc.perform(put("/accounts/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(accountDTO)));
+
+        response.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("Dota 2 account TEST"));    }
 
     @Test
     public void AccountController_DeleteAccount_Success() throws Exception {
-        when(accountService.deleteAccount(1)).thenReturn("Account with id 1 deleted");
+        when(accountService.deleteAccount(1)).thenReturn(ResponseEntity.noContent().build());
 
         ResultActions resultActions = mockMvc.perform(delete("/accounts/1"));
-        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers
-                        .content().string("Account with id 1 deleted"));
+        resultActions.andExpect(MockMvcResultMatchers.status().isNoContent());
     }
 
     @Test
     public void AccountController_DeleteAccount_NotFound() throws Exception {
-        when(accountService.deleteAccount(52)).thenReturn("Account not found");
+        when(accountService.deleteAccount(52)).thenReturn(ResponseEntity.notFound().build());
 
         ResultActions resultActions = mockMvc.perform(delete("/accounts/52"));
 
-        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers
-                        .content().string("Account not found"));
+        resultActions.andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 }

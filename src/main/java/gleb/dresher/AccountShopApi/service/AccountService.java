@@ -6,21 +6,25 @@ import gleb.dresher.AccountShopApi.entity.Seller;
 import gleb.dresher.AccountShopApi.enums.AccountType;
 import gleb.dresher.AccountShopApi.repository.AccountRepository;
 import gleb.dresher.AccountShopApi.repository.SellerRepository;
-import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class AccountService {
     private final AccountRepository accountRepository;
     private final SellerRepository sellerRepository;
+
+    public AccountService(AccountRepository accountRepository, SellerRepository sellerRepository) {
+        this.accountRepository = accountRepository;
+        this.sellerRepository = sellerRepository;
+    }
 
     public List<Account> getAllAccounts() {
         return accountRepository.findAll();
@@ -55,7 +59,7 @@ public class AccountService {
         }
     }
 
-    public Account addAccount(@NotNull AccountDTO accountDTO) {
+    public ResponseEntity<Account> addAccount(@NotNull AccountDTO accountDTO) {
         String name = accountDTO.getName();
         double price = accountDTO.getPrice();
         AccountType accountType = accountDTO.getAccountType();
@@ -67,18 +71,19 @@ public class AccountService {
         Account account = new Account(name, price, accountType);
         account.setSeller(seller);
 
-        return accountRepository.save(account);
+        URI location = URI.create("/accounts/" + account.getId());
+        return ResponseEntity.created(location).body(accountRepository.save(account));
     }
 
-    public String deleteAccount(int id) {
-        if (!accountRepository.existsById(id)) {
-            return "Account not found";
+    public ResponseEntity<Void> deleteAccount(int id) {
+        if (accountRepository.existsById(id)) {
+            accountRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
         }
-        accountRepository.deleteById(id);
-        return "Account with id " + id + " deleted";
+        return ResponseEntity.notFound().build();
     }
 
-    public String updateAccount(int id, AccountDTO accountDTO) {
+    public ResponseEntity<Account> updateAccount(int id, AccountDTO accountDTO) {
         Optional<Account> optionalAccount = accountRepository.findById(id);
         if (optionalAccount.isPresent()) {
             Account existingAccount = optionalAccount.get();
@@ -94,9 +99,9 @@ public class AccountService {
 
             accountRepository.save(existingAccount);
 
-            return "Account with id " + id + " updated successfully";
+            return ResponseEntity.ok().body(existingAccount);
         } else {
-            return "Account with id " + id + " not found";
+            return ResponseEntity.notFound().build();
         }
     }
 }

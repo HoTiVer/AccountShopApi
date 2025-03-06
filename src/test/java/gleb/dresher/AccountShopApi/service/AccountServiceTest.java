@@ -115,11 +115,11 @@ public class AccountServiceTest {
         account1.setSeller(seller);
         when(accountRepository.save(Mockito.any(Account.class))).thenReturn(account1);
 
-        Account savedAccount = accountService.addAccount(accountDTO);
+        ResponseEntity<Account> savedAccount = accountService.addAccount(accountDTO);
 
-        Assertions.assertThat(savedAccount.getName()).isEqualTo(account1.getName());
+        Assertions.assertThat(savedAccount.getBody().getName()).isEqualTo(account1.getName());
         Assertions.assertThat(savedAccount).isNotNull();
-        Assertions.assertThat(savedAccount.getSeller()).isNotNull();
+        Assertions.assertThat(savedAccount.getBody().getSeller()).isNotNull();
     }
 
     @Test
@@ -136,9 +136,10 @@ public class AccountServiceTest {
         when(accountRepository.save(Mockito.any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
 
-        String updatingResult = accountService.updateAccount(accountId, accountDTO);
+        ResponseEntity<Account> updatingResult = accountService.updateAccount(accountId, accountDTO);
 
-        Assertions.assertThat(updatingResult).isEqualTo("Account with id " + accountId + " updated successfully");
+        Assertions.assertThat(updatingResult.getStatusCode())
+                .isEqualTo(ResponseEntity.ok().build().getStatusCode());
 
         Assertions.assertThat(account1.getName()).isEqualTo(accountDTO.getName());
         Assertions.assertThat(account1.getPrice()).isEqualTo(accountDTO.getPrice());
@@ -154,9 +155,10 @@ public class AccountServiceTest {
 
         when(accountRepository.findById(accountId)).thenReturn(Optional.empty());
 
-        String updatingResult = accountService.updateAccount(accountId, accountDTO);
+        ResponseEntity<Account> updatingResult = accountService.updateAccount(accountId, accountDTO);
 
-        Assertions.assertThat(updatingResult).isEqualTo("Account with id " + accountId + " not found");
+        Assertions.assertThat(updatingResult.getStatusCode())
+                .isEqualTo(ResponseEntity.notFound().build().getStatusCode());
 
         verify(accountRepository, never()).save(Mockito.any());
     }
@@ -167,9 +169,10 @@ public class AccountServiceTest {
 
         when(accountRepository.existsById(accountId)).thenReturn(true);
 
-        String result = accountService.deleteAccount(accountId);
+        ResponseEntity<Void> result = accountService.deleteAccount(accountId);
 
-        Assertions.assertThat(result).isEqualTo("Account with id " + accountId + " deleted");
+        Assertions.assertThat(result.getStatusCode())
+                .isEqualTo(ResponseEntity.noContent().build().getStatusCode());
 
 
         verify(accountRepository, times(1)).deleteById(accountId);
@@ -181,9 +184,10 @@ public class AccountServiceTest {
 
         when(accountRepository.existsById(accountId)).thenReturn(false);
 
-        String result = accountService.deleteAccount(accountId);
+        ResponseEntity<Void> result = accountService.deleteAccount(accountId);
 
-        Assertions.assertThat(result).isEqualTo("Account not found");
+        Assertions.assertThat(result.getStatusCode())
+                .isEqualTo(ResponseEntity.notFound().build().getStatusCode());
 
         verify(accountRepository, never()).deleteById(Mockito.anyInt());
     }

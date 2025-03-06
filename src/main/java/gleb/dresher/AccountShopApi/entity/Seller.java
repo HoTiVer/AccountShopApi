@@ -2,18 +2,11 @@ package gleb.dresher.AccountShopApi.entity;
 
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.List;
 
-@Setter
-@Getter
-@NoArgsConstructor
 @Entity
 @Table(name = "sellers")
-@JsonIgnoreProperties({"accounts"})
 public class Seller {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,8 +19,43 @@ public class Seller {
     @JsonBackReference
     private List<Account> accounts;
 
+    public Seller() {
+    }
+
     public Seller(String name, String email) {
         this.name = name;
         this.email = email;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public List<Account> getAccounts() {
+        return accounts;
+    }
+
+    public void setAccounts(List<Account> accounts) {
+        this.accounts = accounts;
     }
 }

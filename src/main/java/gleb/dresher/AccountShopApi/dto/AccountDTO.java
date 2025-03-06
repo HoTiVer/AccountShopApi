@@ -1,11 +1,7 @@
 package gleb.dresher.AccountShopApi.dto;
 
 import gleb.dresher.AccountShopApi.enums.AccountType;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 public class AccountDTO {
     private String name;
     private double price;
@@ -17,6 +13,38 @@ public class AccountDTO {
         this.name = name;
         this.price = price;
         this.accountType = accountType;
+        this.sellerId = sellerId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public AccountType getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(AccountType accountType) {
+        this.accountType = accountType;
+    }
+
+    public int getSellerId() {
+        return sellerId;
+    }
+
+    public void setSellerId(int sellerId) {
         this.sellerId = sellerId;
     }
 }
