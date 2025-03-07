@@ -123,6 +123,25 @@ public class AccountServiceTest {
     }
 
     @Test
+    public void AccountService_CreateAccount_BadRequest() {
+        AccountDTO accountDTO = new AccountDTO(
+                "Dota 2 account TEST",
+                152.0,
+                AccountType.DOTA,
+                1
+        );
+
+        when(sellerRepository.findById(Mockito.anyInt()))
+                .thenThrow(new RuntimeException("Seller not found"));
+
+        ResponseEntity<Account> accountResponse = accountService.addAccount(accountDTO);
+
+        Assertions.assertThat(accountResponse.getStatusCode())
+                .isEqualTo(ResponseEntity.badRequest().build().getStatusCode());
+
+    }
+
+    @Test
     public void AccountServiceUpdateAccount() {
         int accountId = 1;
         AccountDTO accountDTO = new AccountDTO(
@@ -133,10 +152,12 @@ public class AccountServiceTest {
         );
 
         when(accountRepository.findById(accountId)).thenReturn(Optional.of(account1));
-        when(accountRepository.save(Mockito.any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(accountRepository.save(Mockito.any(Account.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
 
-        ResponseEntity<Account> updatingResult = accountService.updateAccount(accountId, accountDTO);
+        ResponseEntity<Account> updatingResult =
+                accountService.updateAccount(accountId, accountDTO);
 
         Assertions.assertThat(updatingResult.getStatusCode())
                 .isEqualTo(ResponseEntity.ok().build().getStatusCode());

@@ -1,7 +1,10 @@
 package gleb.dresher.AccountShopApi.dto;
 
 import gleb.dresher.AccountShopApi.enums.AccountType;
+import io.swagger.v3.oas.annotations.media.Schema;
 
+@Schema(name = "AccountDTO",
+        description = "Account data transfer object to create new account or edit account")
 public class AccountDTO {
     private String name;
     private double price;

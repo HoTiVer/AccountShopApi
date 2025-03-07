@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
@@ -65,9 +66,13 @@ public class AccountService {
         AccountType accountType = accountDTO.getAccountType();
         int sellerId = accountDTO.getSellerId();
 
-        Seller seller = sellerRepository.findById(sellerId)
-                .orElseThrow(() -> new RuntimeException("Seller not found"));
-
+        Seller seller;
+        try {
+            seller = sellerRepository.findById(sellerId)
+                    .orElseThrow(() -> new RuntimeException("Seller not found"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
         Account account = new Account(name, price, accountType);
         account.setSeller(seller);
 

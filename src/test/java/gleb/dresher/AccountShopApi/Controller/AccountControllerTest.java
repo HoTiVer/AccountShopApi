@@ -28,14 +28,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 
 
 import java.util.Arrays;
 import java.util.List;
 
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 @WebMvcTest(controllers = AccountController.class)
@@ -89,7 +88,7 @@ public class AccountControllerTest {
 
         when(accountService.getAccountById(accountId)).thenReturn(ResponseEntity.ok(account1));
 
-        ResultActions response = mockMvc.perform(get("/accountsfindbyid/" + accountId)
+        ResultActions response = mockMvc.perform(get("/account/" + accountId)
                 .contentType(MediaType.APPLICATION_JSON));
 
         response.andExpect(MockMvcResultMatchers.status().isOk());
@@ -156,6 +155,22 @@ public class AccountControllerTest {
                 .andExpect(MockMvcResultMatchers
                         .jsonPath("$.name").value("Dota 2 account TEST"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.price").value(52.0));
+    }
+
+    @Test
+    public void AccountController_AddAccount_BadRequest() throws Exception {
+        AccountDTO accountDTO = new AccountDTO(
+                "Dota 2 account TEST", 52.0, AccountType.DOTA, 52);
+
+        when(accountService.addAccount(any(AccountDTO.class)))
+                .thenReturn(ResponseEntity.badRequest().build());
+
+        ResultActions resultActions = mockMvc.perform(post("/accounts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(accountDTO)));
+
+        resultActions.andExpect(MockMvcResultMatchers.status().isBadRequest());
+
     }
 
     @Test
